@@ -14,7 +14,7 @@ func main() {
 	svc := sns.New(sess)
 	s3svc := s3.New(sess)
 
-        bucketname := "superpuke"
+        bucketname := "ultrapuke"
 	endpointurl := "http://google.com"
 
 	topicparams := &sns.CreateTopicInput{
@@ -44,6 +44,18 @@ func main() {
 	}
 
 	fmt.Println(subresp)
+
+	snspermparams := &sns.AddPermissionInput{
+		AWSAccountId: aws.StringSlice([]string{"*",}),
+		ActionName: aws.StringSlice([]string{"SNS:Subscribe","SNS:Receive"}),
+		Label: aws.String("objevent default policy"),
+		TopicArn: topicresp.TopicArn,
+	}
+
+	snspermresp, err := svc.AddPermission(snspermparams)
+
+	fmt.Println(snspermresp)	
+
 
 	//now need to confirm subscription with token... might need some app logic, the app needs to have a token endpoint, maybe use the ARN as a unique path. /tokens/{arn}/
 
