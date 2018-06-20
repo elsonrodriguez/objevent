@@ -36,9 +36,16 @@ func awsHandler(bucketName string, endpointURL string) bool {
 
 	fmt.Println(topicResponse)
 
+	endpointURLParsed, err := url.Parse(endpointURL)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+
         subParams := &sns.SubscribeInput{
 		Endpoint: aws.String(endpointURL),
-		Protocol: aws.String("http"), // Parse this out later		
+		Protocol: aws.String(endpointURLParsed.Scheme),
 		TopicArn: topicResponse.TopicArn,
 	}
 
@@ -100,13 +107,15 @@ func awsHandler(bucketName string, endpointURL string) bool {
 func gcpHandler(bucketName string, endpointURL string) bool {
 	ctx := context.Background()
 
-	//TODO: check for GOOGLE_CLOUD_PROJECT before trying gcloud config
-	out, err := exec.Command("gcloud", "config", "get-value", "project").Output()
-	if err != nil {
-		fmt.Println(err.Error())
+	projectID := os.Getenv("GOOGLE_CLOUD_PROJECT")
+	if projectID == "" {
+		out, err := exec.Command("gcloud", "config", "get-value", "project").Output()
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		projectID = strings.TrimSpace(string(out))
 	}
-	projectID := strings.TrimSpace(string(out))
-
+	
 	client, err := pubsub.NewClient(ctx, projectID)
 
 	if err != nil {
@@ -177,7 +186,7 @@ func main () {
 	}
 
 	bucketName := bucketURL.Host
-	bucketScheme := bucketURL.Scheme	
+	bucketScheme := bucketURL.Scheme
 
 	result := false
 
