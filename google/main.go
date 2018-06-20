@@ -79,7 +79,6 @@ func main() {
 	}
 
 	fmt.Println(notificationResponse)
-        fmt.Printf("Added event notifications for bucket %s to endpoint %s", bucketName, endpointURL)
-
+	fmt.Printf("Added event notifications for bucket %s to endpoint %s", bucketName, endpointURL)
 }
 
